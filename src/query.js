@@ -6,7 +6,7 @@ const sellsQuery = (blockNumber) => gql`
       orderBy: blockNumber
       first: 20
       where: {blockNumber_gt: ${blockNumber}}
-      orderDirection: asc
+      orderDirection: desc
     ) {
       from
       id
@@ -23,7 +23,7 @@ const buysQuery = (blockNumber) => gql`
       orderBy: blockNumber
       first: 20
       where: {blockNumber_gt: ${blockNumber}}
-      orderDirection: asc
+      orderDirection: desc
     ) {
       from
       id
