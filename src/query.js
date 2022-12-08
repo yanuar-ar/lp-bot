@@ -28,6 +28,7 @@ const buysQuery = (blockNumber) => gql`
       from
       id
       tokenId
+      value
       blockTimestamp
       blockNumber
     }

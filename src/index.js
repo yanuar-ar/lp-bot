@@ -3,6 +3,7 @@ dotenv.config();
 const { request } = require('graphql-request');
 const { redis, discordWebhook } = require('./clients');
 const { EmbedBuilder } = require('discord.js');
+const { ethers } = require('ethers');
 const { setupSellCache, setupBuyCache } = require('./setup');
 const { sellsQuery, buysQuery } = require('./query');
 const { getSellCacheKey, getBuyCacheKey } = require('./cache');
@@ -79,6 +80,11 @@ async function processBuyTick() {
         {
           name: 'Token Id',
           value: `${buy.tokenId}`,
+          inline: true,
+        },
+        {
+          name: 'Value',
+          value: 'Ξ ' + parseFloat(ethers.utils.formatEther(buy.value)).toFixed(3),
           inline: true,
         },
       )
