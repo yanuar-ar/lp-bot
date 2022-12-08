@@ -8,14 +8,17 @@ const { setupSellCache, setupBuyCache } = require('./setup');
 const { sellsQuery, buysQuery } = require('./query');
 const { getSellCacheKey, getBuyCacheKey } = require('./cache');
 const { shortAddress, resolveEnsOrFormatAddress } = require('./utils');
+const _ = require('lodash');
 
 // Sell Transaction
 async function processSellTick() {
-  const sellBlockNumberCache = JSON.parse(await redis.get(getSellCacheKey));
+  const sellBlockNumberCache = await redis.get(getSellCacheKey);
 
   console.log('Check sell transaction after block number:', sellBlockNumberCache);
 
-  const { sells } = await request(process.env.GRAPHQL_API_URL, sellsQuery(sellBlockNumberCache));
+  let { sells } = await request(process.env.GRAPHQL_API_URL, sellsQuery(sellBlockNumberCache));
+
+  sells = _.orderBy(sells, ['blockNumber'], ['asc']);
 
   if (sells.length == 0) return;
 
@@ -40,7 +43,7 @@ async function processSellTick() {
       .setTimestamp();
 
     discordWebhook.send({
-      username: 'Prop House BOT',
+      username: 'The LP BOT',
       avatarURL: 'https://prop.house/bulb.png',
       embeds: [embed],
     });
@@ -57,11 +60,13 @@ async function processSellTick() {
 
 // Buy Transaction
 async function processBuyTick() {
-  const buyBlockNumberCache = JSON.parse(await redis.get(getBuyCacheKey));
+  const buyBlockNumberCache = await redis.get(getBuyCacheKey);
 
   console.log('Check buy transaction after block number:', buyBlockNumberCache);
 
-  const { buys } = await request(process.env.GRAPHQL_API_URL, buysQuery(buyBlockNumberCache));
+  let { buys } = await request(process.env.GRAPHQL_API_URL, buysQuery(buyBlockNumberCache));
+
+  buys = _.orderBy(buys, ['blockNumber'], ['asc']);
 
   if (buys.length == 0) return;
 
@@ -91,7 +96,7 @@ async function processBuyTick() {
       .setTimestamp();
 
     discordWebhook.send({
-      username: 'Prop House BOT',
+      username: 'The LP BOT',
       avatarURL: 'https://prop.house/bulb.png',
       embeds: [embed],
     });
