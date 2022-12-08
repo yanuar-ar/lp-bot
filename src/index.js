@@ -6,7 +6,7 @@ const { EmbedBuilder } = require('discord.js');
 const { setupSellCache, setupBuyCache } = require('./setup');
 const { sellsQuery, buysQuery } = require('./query');
 const { getSellCacheKey, getBuyCacheKey } = require('./cache');
-const { shortAddress } = require('./utils');
+const { shortAddress, resolveEnsOrFormatAddress } = require('./utils');
 
 // Sell Transaction
 async function processSellTick() {
@@ -25,7 +25,9 @@ async function processSellTick() {
       .addFields(
         {
           name: 'From',
-          value: `[${shortAddress(sell.from)}](https://etherscan.io/address/${sell.from})`,
+          value: `[${await resolveEnsOrFormatAddress(sell.from)}](https://etherscan.io/address/${
+            sell.from
+          })`,
           inline: true,
         },
         {
@@ -69,7 +71,9 @@ async function processBuyTick() {
       .addFields(
         {
           name: 'From',
-          value: `[${shortAddress(buy.from)}](https://etherscan.io/address/${buy.from})`,
+          value: `[${await resolveEnsOrFormatAddress(buy.from)}](https://etherscan.io/address/${
+            buy.from
+          })`,
           inline: true,
         },
         {
