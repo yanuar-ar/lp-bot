@@ -2,12 +2,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 const { request } = require('graphql-request');
 const { redis, discordWebhook } = require('./clients');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const { ethers } = require('ethers');
 const { setupSellCache, setupBuyCache } = require('./setup');
 const { sellsQuery, buysQuery } = require('./query');
 const { getSellCacheKey, getBuyCacheKey } = require('./cache');
-const { shortAddress, resolveEnsOrFormatAddress } = require('./utils');
+const { shortAddress, resolveEnsOrFormatAddress, getLPPngBuffer } = require('./utils');
 const _ = require('lodash');
 
 // Sell Transaction
@@ -23,6 +23,11 @@ async function processSellTick() {
   if (sells.length == 0) return;
 
   for (const sell of sells) {
+    const png = await getLPPngBuffer(sell.tokenId.toString());
+
+    const attachmentName = `the-lp-${sell.tokenId}.png`;
+    const attachment = new AttachmentBuilder(png, { name: attachmentName });
+
     const embed = new EmbedBuilder()
       .setTitle('Sell Transaction')
       .setURL(`https://etherscan.io/tx/${sell.id}`)
@@ -40,12 +45,14 @@ async function processSellTick() {
           inline: true,
         },
       )
+      .setImage(`attachment://${attachmentName}`)
       .setTimestamp();
 
     discordWebhook.send({
       username: 'The LP BOT',
       avatarURL: 'https://prop.house/bulb.png',
       embeds: [embed],
+      files: [attachment],
     });
     console.log(
       `New sell transaction from ${shortAddress(sell.from)} with tokenId: ${
