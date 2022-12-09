@@ -78,6 +78,11 @@ async function processBuyTick() {
   if (buys.length == 0) return;
 
   for (const buy of buys) {
+    const png = await getLPPngBuffer(buy.tokenId.toString());
+
+    const attachmentName = `the-lp-${buy.tokenId}.png`;
+    const attachment = new AttachmentBuilder(png, { name: attachmentName });
+
     const embed = new EmbedBuilder()
       .setTitle('Buy Transaction')
       .setURL(`https://etherscan.io/tx/${buy.id}`)
@@ -100,12 +105,14 @@ async function processBuyTick() {
           inline: true,
         },
       )
+      .setImage(`attachment://${attachmentName}`)
       .setTimestamp();
 
     discordWebhook.send({
       username: 'The LP BOT',
       avatarURL: 'https://prop.house/bulb.png',
       embeds: [embed],
+      files: [attachment],
     });
     console.log(
       `New buy transaction from ${shortAddress(buy.from)} with tokenId: ${
